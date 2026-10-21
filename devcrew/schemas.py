@@ -5,10 +5,12 @@ schema, the output of one agent becomes machine-parseable input for the
 next agent in the pipeline — no regex, no guessing.
 """
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
-
 # ---------- Project Manager output ----------
+
 
 class PlanItem(BaseModel):
     id: int = Field(description="Sequential task id, starting at 1")
@@ -24,11 +26,14 @@ class ProjectPlan(BaseModel):
 
 # ---------- QA Tester output ----------
 
+
 class TestCase(BaseModel):
     name: str
     scenario: str = Field(description="What is being tested")
     expected: str = Field(description="Expected behaviour")
-    verdict: str = Field(description="'pass' or 'fail' based on reading the code")
+    verdict: Literal["pass", "fail"] = Field(
+        description="'pass' or 'fail' based on reading the code"
+    )
     notes: str = Field(default="", description="Why it passes/fails")
 
 
@@ -42,15 +47,20 @@ class TestReport(BaseModel):
 
 # ---------- Code Reviewer output ----------
 
+
 class ReviewComment(BaseModel):
-    severity: str = Field(description="'critical', 'major' or 'minor'")
+    severity: Literal["critical", "major", "minor"] = Field(
+        description="'critical', 'major' or 'minor'"
+    )
     location: str = Field(description="Function or section of code")
     comment: str
 
 
 class ReviewReport(BaseModel):
-    verdict: str = Field(description="'approved' or 'changes_requested'")
-    readability_score: int = Field(description="1-10")
-    correctness_score: int = Field(description="1-10")
+    verdict: Literal["approved", "changes_requested"] = Field(
+        description="'approved' or 'changes_requested'"
+    )
+    readability_score: int = Field(ge=1, le=10, description="1-10")
+    correctness_score: int = Field(ge=1, le=10, description="1-10")
     comments: list[ReviewComment]
     summary: str = Field(description="Final review summary in 2-3 sentences")

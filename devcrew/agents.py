@@ -7,13 +7,15 @@ prompt asking a single LLM to plan, code, test and review all at once.
 
 import os
 
-from crewai import Agent, LLM
+from crewai import LLM, Agent
+
+DEFAULT_MODEL = "gpt-4o-mini"
 
 
-def get_llm() -> LLM:
-    """One shared LLM config. Model is swappable via the MODEL env var."""
+def get_llm(model: str | None = None) -> LLM:
+    """One shared LLM config. Model comes from the argument, then the MODEL env var."""
     return LLM(
-        model=os.getenv("MODEL", "gpt-4o-mini"),
+        model=model or os.getenv("MODEL", DEFAULT_MODEL),
         temperature=0.3,  # low temp = more deterministic, parseable output
     )
 
