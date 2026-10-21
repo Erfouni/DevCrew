@@ -6,12 +6,14 @@ the "orchestrated hand-off" — no agent sees the whole conversation, only
 what it needs.
 """
 
+import os
+
 from crewai import Agent, Task
 
 from .schemas import ProjectPlan, ReviewReport, TestReport
 
 
-def plan_task(agent: Agent) -> Task:
+def plan_task(agent: Agent, output_dir: str = "output") -> Task:
     return Task(
         description=(
             "The user wants to build: '{idea}'.\n"
@@ -22,11 +24,11 @@ def plan_task(agent: Agent) -> Task:
         expected_output="A structured project plan as JSON.",
         agent=agent,
         output_json=ProjectPlan,
-        output_file="output/01_plan.json",
+        output_file=os.path.join(output_dir, "01_plan.json"),
     )
 
 
-def code_task(agent: Agent, plan: Task) -> Task:
+def code_task(agent: Agent, plan: Task, output_dir: str = "output") -> Task:
     return Task(
         description=(
             "Implement the project plan you received as ONE self-contained "
@@ -37,11 +39,11 @@ def code_task(agent: Agent, plan: Task) -> Task:
         expected_output="A single runnable Python file.",
         agent=agent,
         context=[plan],  # hand-off: developer only sees the plan
-        output_file="output/02_code.py",
+        output_file=os.path.join(output_dir, "02_code.py"),
     )
 
 
-def test_task(agent: Agent, code: Task) -> Task:
+def test_task(agent: Agent, code: Task, output_dir: str = "output") -> Task:
     return Task(
         description=(
             "Read the Python code you received and design 5-8 test cases "
@@ -53,11 +55,11 @@ def test_task(agent: Agent, code: Task) -> Task:
         agent=agent,
         context=[code],  # hand-off: tester only sees the code
         output_json=TestReport,
-        output_file="output/03_test_report.json",
+        output_file=os.path.join(output_dir, "03_test_report.json"),
     )
 
 
-def review_task(agent: Agent, code: Task, tests: Task) -> Task:
+def review_task(agent: Agent, code: Task, tests: Task, output_dir: str = "output") -> Task:
     return Task(
         description=(
             "Review the code, taking the QA report into account. Score "
@@ -68,5 +70,5 @@ def review_task(agent: Agent, code: Task, tests: Task) -> Task:
         agent=agent,
         context=[code, tests],  # hand-off: reviewer sees code + QA report
         output_json=ReviewReport,
-        output_file="output/04_review.json",
+        output_file=os.path.join(output_dir, "04_review.json"),
     )

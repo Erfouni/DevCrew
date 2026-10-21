@@ -1,0 +1,28 @@
+name: Bug report
+description: Something in DevCrew doesn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you ran, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Command
+      placeholder: devcrew "a CLI expense tracker" -m gpt-4o-mini
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error output or relevant files from output/
+      render: text
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Output of `devcrew --version`, `python --version` and `pip show crewai | grep Version`
+    validations:
+      required: true
